@@ -36,3 +36,15 @@ need to be able to look up
 
 initially, look up the total set of tags for all the triples ...
 
+
+
+
+--
+
+Ignore the above, we can (and should) just use a Naive Bayes Classifier.
+
+We'll need to use Laplacian correction so that terms that we haven't recorded
+for a particular tag previously don't just mean the probability of the whole
+is set to zero.
+
+For Laplacian correction see here: http://www.cs.nyu.edu/faculty/davise/ai/bayesText.html
