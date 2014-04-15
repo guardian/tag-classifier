@@ -1,4 +1,4 @@
-package com.theguardian.tagsuggestions
+package com.theguardian.tagclassifier
 
 case class Tag(tag: String)
 

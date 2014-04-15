@@ -1,4 +1,4 @@
-package com.theguardian.tagsuggestions
+package com.theguardian.tagclassifier
 
 import collection.JavaConversions._
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}

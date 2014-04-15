@@ -1,4 +1,4 @@
-package com.theguardian.tagsuggestions
+package com.theguardian.tagclassifier
 
 import org.specs2.mutable.Specification
 

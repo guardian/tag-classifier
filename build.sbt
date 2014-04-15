@@ -2,7 +2,7 @@
 
 organization := "com.theguardian"
 
-name := "tag-suggestions"
+name := "tag-classifier"
 
 scalaVersion := "2.10.4"
 
