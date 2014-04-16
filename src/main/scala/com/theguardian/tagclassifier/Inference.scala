@@ -1,31 +1,24 @@
 package com.theguardian.tagclassifier
 
-case class Tag(tag: String)
-
-case class TagStats(
-  tag: Tag,
-  totalArticles: Int,
-  totalWords: Int,
-  occurrencesOfWord: Map[String, Int]
-) {
-  /** Uses Laplacian correction, so that words that do not occur do not unduly distort the model */
-  def probabilityOfWord(word: String, numberOfUniqueWordsInD: Int) = {
-    val cw = occurrencesOfWord.getOrElse(word, 0)
-    val v = numberOfUniqueWordsInD
-
-    (1 + cw).toDouble / (totalWords + v)
-  }
-
-  def probabilityOfDocument(features: Seq[String], totalNumberOfArticles: Int) = {
-    val numberUniqueFeatures = features.toSet.size
-    val probabilityOfTag = totalNumberOfArticles.toDouble / totalArticles
-
-    /** Use logs to prevent underflow issues */
-    (Seq(probabilityOfTag) ++ features.map(probabilityOfWord(_, numberUniqueFeatures))).map(Math.log).sum
-  }
-}
+import com.theguardian.tagclassifier.models.{Tag, TagStats}
 
 object Inference {
+  /** Uses Laplacian correction, so that words that do not occur do not unduly distort the model */
+  def probabilityOfWord(tagStats: TagStats, word: String, numberOfUniqueWordsInD: Int) = {
+    val cw = tagStats.occurrencesOfWord.getOrElse(word, 0)
+    val v = numberOfUniqueWordsInD
+
+    (1 + cw).toDouble / (tagStats.totalWords + v)
+  }
+
+  def probabilityOfDocument(tagStats: TagStats, features: Seq[String], totalNumberOfArticles: Int) = {
+    val numberUniqueFeatures = features.toSet.size
+    val probabilityOfTag = totalNumberOfArticles.toDouble / tagStats.totalArticles
+
+    /** Use logs to prevent underflow issues */
+    (Seq(probabilityOfTag) ++ features.map(probabilityOfWord(tagStats, _, numberUniqueFeatures))).map(Math.log).sum
+  }
+
   /**
     * Given the features of a document, and a set of classes against which to classify it, returns a descending list
     * of most likely tags, with their scores.
@@ -42,6 +35,6 @@ object Inference {
     totalNumberOfArticles: Int
   ): Seq[(Tag, Double)] =
     (classes map { tagStats =>
-      tagStats.tag -> tagStats.probabilityOfDocument(features, totalNumberOfArticles)
+      tagStats.tag -> probabilityOfDocument(tagStats, features, totalNumberOfArticles)
     }).toSeq.sortBy(-_._2)
 }
