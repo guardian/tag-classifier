@@ -31,10 +31,10 @@ object Inference {
     */
   def suggestions(
     features: Seq[String],
-    classes: Set[TagStats],
+    classes: Map[Tag, TagStats],
     totalNumberOfArticles: Int
   ): Seq[(Tag, Double)] =
-    (classes map { tagStats =>
-      tagStats.tag -> probabilityOfDocument(tagStats, features, totalNumberOfArticles)
+    (classes map { case (tag, tagStats) =>
+      tag -> probabilityOfDocument(tagStats, features, totalNumberOfArticles)
     }).toSeq.sortBy(-_._2)
 }
