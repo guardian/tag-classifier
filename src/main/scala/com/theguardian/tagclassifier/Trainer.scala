@@ -9,7 +9,7 @@ object Trainer extends Logging {
     val totalTime = new StopWatch
 
     val dataSet = items.foldLeft(DataSet.empty) { (dataSet, content) =>
-      val documentTime = new StopWatch
+      //val documentTime = new StopWatch
       val withTagStats = content.tagIds.foldLeft(dataSet) { case (tagStats, tag) =>
         tagStats.addTagStats(tag, content.tagStats)
       }
@@ -17,7 +17,7 @@ object Trainer extends Logging {
       val newSet = content.words.distinct.foldLeft(withTagStats) { case (tagStats, word) =>
         tagStats.addWordStats(word, WordStats(content.tagIds))
       }
-      println(s"Added document in ${documentTime.elapsed}ms")
+      //println(s"Added document in ${documentTime.elapsed}ms")
 
       newSet.incrementTotalArticles
     }

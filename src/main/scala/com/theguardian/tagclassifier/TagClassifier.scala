@@ -4,7 +4,7 @@ import com.theguardian.tagclassifier.contentapi.{Api, TrainingSetDownloader}
 import com.theguardian.tagclassifier.models.Document
 
 object TagClassifier extends App {
-  val TrainingSetSize = 5000
+  val TrainingSetSize = 3000
   val TestingSetSize = 50
 
   println(s"Retrieving $TrainingSetSize documents from Content API ...")
