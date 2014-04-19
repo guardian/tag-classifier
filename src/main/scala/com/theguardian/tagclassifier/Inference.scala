@@ -13,8 +13,8 @@ object Inference extends Logging {
   }
 
   def probabilityOfDocument(tagStats: TagStats, features: Seq[String], totalNumberOfArticles: Int) = {
-    val numberUniqueFeatures = features.toSet.size
-    val probabilityOfTag = totalNumberOfArticles.toDouble / tagStats.totalArticles
+    val numberUniqueFeatures = features.distinct.length
+    val probabilityOfTag = tagStats.totalArticles / totalNumberOfArticles.toDouble
 
     /** Use logs to prevent underflow issues */
     (Seq(probabilityOfTag) ++ features.map(probabilityOfWord(tagStats, _, numberUniqueFeatures))).map(Math.log).sum

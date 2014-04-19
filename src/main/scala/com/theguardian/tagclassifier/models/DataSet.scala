@@ -36,4 +36,6 @@ case class DataSet(
   def addWordStats(word: String, stats: WordStats) = {
     DataSet.wordStatsLens.mod(_ |+| Map(word -> stats), this)
   }
+
+  def incrementTotalArticles = copy(totalArticles = totalArticles + 1)
 }

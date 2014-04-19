@@ -14,6 +14,7 @@ object TagClassifier extends App {
   val documents = TrainingSetDownloader
     .download(TrainingSetSize + TestingSetSize)
     .map(Document.fromContent)
+    .filter(!_.words.isEmpty)
     .toBlockingObservable
     .toList
 
