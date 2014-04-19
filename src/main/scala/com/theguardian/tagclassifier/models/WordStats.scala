@@ -1,7 +1,6 @@
 package com.theguardian.tagclassifier.models
 
 import scalaz.Monoid
-import com.gu.openplatform.contentapi.model.Tag
 
 object WordStats {
   implicit val wordStatsMonoid = new Monoid[WordStats] {
@@ -17,4 +16,4 @@ object WordStats {
   *
   * @param tagsSeen Tags that documents that have contained that word have been tagged with
   */
-case class WordStats(tagsSeen: Set[Tag])
+case class WordStats(tagsSeen: Set[String])

@@ -3,7 +3,6 @@ package com.theguardian.tagclassifier.models
 import scalaz.Lens
 import scalaz.std.map._
 import scalaz.syntax.monoid._
-import com.gu.openplatform.contentapi.model.Tag
 
 object DataSet {
   def empty = DataSet(0, Map.empty, Map.empty)
@@ -13,7 +12,7 @@ object DataSet {
     _.totalArticles
   )
 
-  val tagStatsLens = Lens.lensu[DataSet, Map[Tag, TagStats]](
+  val tagStatsLens = Lens.lensu[DataSet, Map[String, TagStats]](
     (dataSet, stats) => dataSet.copy(tagStats = stats),
     _.tagStats
   )
@@ -26,12 +25,12 @@ object DataSet {
 
 case class DataSet(
   totalArticles: Int,
-  tagStats: Map[Tag, TagStats],
+  tagStats: Map[String, TagStats],
   wordStats: Map[String, WordStats]
 ) {
 
-  def addTagStats(tag: Tag, stats: TagStats) = {
-    DataSet.tagStatsLens.mod(_ |+| Map(tag -> stats), this)
+  def addTagStats(tagId: String, stats: TagStats) = {
+    DataSet.tagStatsLens.mod(_ |+| Map(tagId -> stats), this)
   }
 
   def addWordStats(word: String, stats: WordStats) = {

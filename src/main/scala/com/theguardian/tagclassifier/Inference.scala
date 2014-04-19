@@ -1,9 +1,9 @@
 package com.theguardian.tagclassifier
 
 import com.theguardian.tagclassifier.models.TagStats
-import com.gu.openplatform.contentapi.model.Tag
+import grizzled.slf4j.Logging
 
-object Inference {
+object Inference extends Logging {
   /** Uses Laplacian correction, so that words that do not occur do not unduly distort the model */
   def probabilityOfWord(tagStats: TagStats, word: String, numberOfUniqueWordsInD: Int) = {
     val cw = tagStats.occurrencesOfWord.getOrElse(word, 0)
@@ -32,9 +32,9 @@ object Inference {
     */
   def suggestions(
     features: Seq[String],
-    classes: Map[Tag, TagStats],
+    classes: Map[String, TagStats],
     totalNumberOfArticles: Int
-  ): Seq[(Tag, Double)] =
+  ): Seq[(String, Double)] =
     (classes map { case (tag, tagStats) =>
       tag -> probabilityOfDocument(tagStats, features, totalNumberOfArticles)
     }).toSeq.sortBy(-_._2)
