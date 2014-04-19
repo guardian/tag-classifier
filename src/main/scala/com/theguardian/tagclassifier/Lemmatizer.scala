@@ -12,6 +12,8 @@ object Lemmatizer {
   private val pipeline = new StanfordCoreNLP(props)
 
   def lemmatize(text: String) = {
+    val startTime = System.currentTimeMillis
+    def elapsed = System.currentTimeMillis - startTime
     val document = new Annotation(text)
     pipeline.annotate(document)
 
@@ -23,6 +25,8 @@ object Lemmatizer {
       tokens map { _.get(classOf[LemmaAnnotation]) }
     }
 
-    lemmas.toList
+    println(s"Lemmatized text with ${text.length} words in ${elapsed}ms")
+
+    lemmas.toList.filterNot(_.forall(!_.isLetterOrDigit))
   }
 }

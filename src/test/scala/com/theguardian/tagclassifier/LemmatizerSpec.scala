@@ -14,11 +14,11 @@ class LemmatizerSpec extends Specification {
           |those forces were threatening to undermine and destabilise the government in Kiev.
         """.stripMargin) shouldEqual List(
         "arm", "pro-russian", "separatist", "seize", "more", "building", "in", "eastern", "Ukraine", "earlier",
-        "in", "the", "day", ",", "expand", "they", "control", "after", "the", "government", "fail", "to", "follow",
-        "through", "on", "a", "threaten", "military", "crackdown", ".", "in", "a", "call", "on", "Monday", "night",
-        "that", "the", "White", "House", "say", "Moscow", "request", ",", "the", "US", "president", "tell", "Putin",
+        "in", "the", "day", "expand", "they", "control", "after", "the", "government", "fail", "to", "follow",
+        "through", "on", "a", "threaten", "military", "crackdown", "in", "a", "call", "on", "Monday", "night",
+        "that", "the", "White", "House", "say", "Moscow", "request", "the", "US", "president", "tell", "Putin",
         "that", "those", "force", "be", "threaten", "to", "undermine", "and", "destabilise", "the", "government",
-        "in", "Kiev", "."
+        "in", "Kiev"
       )
     }
   }

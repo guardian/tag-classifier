@@ -1,10 +1,10 @@
 package com.theguardian.tagclassifier
 
 import org.specs2.mutable.Specification
-import rx.lang.scala.Observable
 import com.gu.openplatform.contentapi.model.{Tag, Content}
 import org.joda.time.DateTime
 import com.theguardian.tagclassifier.utils.ResourceHelper
+import com.theguardian.tagclassifier.models.Document
 
 class TrainerSpec extends Specification with ResourceHelper {
   object Content {
@@ -31,18 +31,18 @@ class TrainerSpec extends Specification with ResourceHelper {
         apiUrl = "http://beta.content.guardianapis.com/business/executive-pay-bonuses"
       )
 
-      val Some(dataSet) = Trainer.train(Observable.items(Content.empty.copy(
+      val dataSet = Trainer.train(Seq(Document.fromContent(Content.empty.copy(
         fields = Some(Map("body" -> slurpOrDie("executive-pay-ceos-dont-need-cash.html"))),
         tags = List(
           tag
         )
-      ))).toBlockingObservable.toList.headOption
+      ))))
 
       dataSet.tagStats.size mustEqual 1
 
       val Some(stats) = dataSet.tagStats.get("business/executive-pay-bonuses")
 
-      stats.totalWords mustEqual 921
+      stats.totalWords mustEqual 770
     }
   }
 }
