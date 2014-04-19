@@ -1,6 +1,7 @@
 package com.theguardian.tagclassifier
 
-import com.theguardian.tagclassifier.models.{Tag, TagStats}
+import com.theguardian.tagclassifier.models.TagStats
+import com.gu.openplatform.contentapi.model.Tag
 
 object Inference {
   /** Uses Laplacian correction, so that words that do not occur do not unduly distort the model */

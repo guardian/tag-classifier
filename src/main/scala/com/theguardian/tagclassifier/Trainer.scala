@@ -1,66 +1,45 @@
 package com.theguardian.tagclassifier
 
 import com.gu.openplatform.contentapi.model.Content
-import com.theguardian.tagclassifier.models.{WordStats, Tag, TagStats}
+import com.theguardian.tagclassifier.models.{WordStats, TagStats, DataSet}
 import util.Seqs._
-import scalaz.Lens
-
-object DataSet {
-  def empty = DataSet(0, Map.empty, Map.empty)
-
-  val totalArticlesLens = Lens.lensu[DataSet, Int](
-    (dataSet, total) => dataSet.copy(totalArticles = total),
-    _.totalArticles
-  )
-
-  val tagStatsLens = Lens.lensu[DataSet, Map[Tag, TagStats]](
-    (dataSet, stats) => dataSet.copy(tagStats = stats),
-    _.tagStats
-  )
-
-  val wordStatsLens = Lens.lensu[DataSet, Map[String, WordStats]](
-    (dataSet, stats) => dataSet.copy(wordStats = stats),
-    _.wordStats
-  )
-
-  //def tagTagStatsLens(tag: Tag) = tagStatsLens compose Lens.MapLens
-}
-
-case class DataSet(
-  totalArticles: Int,
-  tagStats: Map[Tag, TagStats],
-  wordStats: Map[String, WordStats]
-) {
-  /*
-  def addWordStats(word: String, stats: WordStats) = {
-    val WordStats(word, newTags) = stats
-    val allTags = wordStats.get(word).map(_.tagsSeen).getOrElse(Set.empty) ++ newTags
-    DataSet.wordStatsLens.mod(_ + (word -> WordStats(word, allTags)), this)
-  }
-
-  def addTagStats(stats: TagStats) = {
-
-    val TagStats(tag, newArticles, newWords, newWordMap) = stats
-
-    DataSet.tagStatsLens.mod(_ + tag -> TagStats(tag, ), this)
-  }*/
-}
+import org.jsoup.Jsoup
+import org.jsoup.safety.Whitelist
 
 object Trainer {
+  implicit class RichContent(content: Content) {
+    lazy val words = content.safeFields.get("body") map { body =>
+      Lemmatizer.lemmatize(Jsoup.clean(body, Whitelist.none()))
+    } getOrElse {
+      throw new RuntimeException(
+        "Cannot train data set on items of content for which the body was not requested. Is your query correct?"
+      )
+    }
+
+    lazy val wordFrequencies = words.frequencies
+
+    lazy val tagStats = TagStats(
+      1,
+      words.length,
+      wordFrequencies
+    )
+
+    lazy val wordStats = WordStats(content.tags.toSet)
+  }
+
 
   def train(items: Seq[Content]) = {
-    val dataSet = DataSet.empty
-    val item = items(0)
+    items.foldLeft(DataSet.empty) { (dataSet, content) =>
+      val richContent = new RichContent(content)
 
-    val features = Lemmatizer.lemmatize(item.safeFields.getOrElse("body", throw new RuntimeException(
-      "Cannot train data set on items of content for which the body was not requested. Is your query correct?"
-    )))
+      val withTagStats = content.tags.foldLeft(dataSet) { case (tagStats, tag) =>
+        tagStats.addTagStats(tag, richContent.tagStats)
+      }
 
-    val featureSet = features.toSet
-    val featureFrequencies = features.frequencies
-
-
-
+      content.words.distinct.foldLeft(withTagStats) { case (tagStats, word) =>
+        tagStats.addWordStats(word, richContent.wordStats)
+      }
+    }
   }
 
 }

@@ -1,10 +1,7 @@
 package com.theguardian.tagclassifier.models
 
 import scalaz.Monoid
-import com.theguardian.tagclassifier.util.Maps
-
-/** CAPI tag */
-case class Tag(tagType: String, id: String)
+import scalaz.syntax.std.map._
 
 object TagStats {
   implicit val tagStatsMonoid = new Monoid[TagStats] {
@@ -13,7 +10,7 @@ object TagStats {
     override def append(f1: TagStats, f2: => TagStats): TagStats = TagStats(
       f1.totalArticles + f2.totalArticles,
       f1.totalWords + f2.totalWords,
-      Maps.merge(f1.occurrencesOfWord, f2.occurrencesOfWord)(_ + _)
+      f1.occurrencesOfWord.unionWith(f2.occurrencesOfWord)(_ + _)
     )
   }
 
