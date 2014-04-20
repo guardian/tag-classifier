@@ -3,8 +3,10 @@ package com.theguardian.tagclassifier.models
 import scalaz.Monoid
 
 object WordStats {
+  def empty = WordStats(Set.empty)
+
   implicit val wordStatsMonoid = new Monoid[WordStats] {
-    override def zero: WordStats = WordStats(Set.empty)
+    override def zero: WordStats = empty
 
     override def append(f1: WordStats, f2: => WordStats): WordStats =
       WordStats(f1.tagsSeen ++ f2.tagsSeen)

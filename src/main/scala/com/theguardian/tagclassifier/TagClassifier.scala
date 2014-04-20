@@ -1,10 +1,10 @@
 package com.theguardian.tagclassifier
 
 import com.theguardian.tagclassifier.contentapi.{Api, TrainingSetDownloader}
-import com.theguardian.tagclassifier.models.Document
+import com.theguardian.tagclassifier.models.{WordStats, Document}
 
 object TagClassifier extends App {
-  val TrainingSetSize = 3000
+  val TrainingSetSize = 1000
   val TestingSetSize = 50
 
   println(s"Retrieving $TrainingSetSize documents from Content API ...")
@@ -31,21 +31,28 @@ object TagClassifier extends App {
 
     val tagSet = document.tagIds.toSet
 
-    val predictions = Inference.suggestions(
+    // TODO this is what word stats was for ...
+    val tagsToConsider = (document.words.distinct flatMap { word =>
+      dataSet.wordStats.getOrElse(word, WordStats.empty).tagsSeen
+    }).toSet
+
+    val allPredictions = Inference.suggestions(
       document.words,
       dataSet.tagStats,
       TrainingSetSize
-    ).map(_._1) take tagSet.size
+    )
+
+    println("Predicted:")
+
+    allPredictions.take(tagSet.size) foreach { case (tag, probability) =>
+      println("\t%10f %10s".format(probability, tag))
+    }
+
+    val predictions = allPredictions.map(_._1) take tagSet.size
 
     println("Wanted:")
 
     tagSet foreach { tag =>
-      println("\t" + tag)
-    }
-
-    println("Predicted:")
-
-    predictions foreach { tag =>
       println("\t" + tag)
     }
 

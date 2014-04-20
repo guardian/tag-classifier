@@ -26,7 +26,7 @@ object Inference extends Logging {
     *
     * @param features The features of the document (i.e., a lemmatized set of words, with stop words removed)
     * @param classes The classes against which to match (i.e., tags, with the appropriate data for calculating
-   *                 probabilities of seeing given words in documents that have been tagged.
+   *                 probabilities of seeing given words in documents that have been tagged).
     * @param totalNumberOfArticles Total number of articles the data set has been trained on.
     * @return List of predicted tags in descending order of prediction score.
     */
