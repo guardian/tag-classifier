@@ -51,4 +51,24 @@ class InferenceSpec extends Specification {
       )
     }
   }
+
+  "suggestions" should {
+    "recommend tags for which previous documents contain similar words more highly" in {
+      val suggestions = Inference.suggestions(Seq(
+        "bees", "buzz"
+      ), Map(
+        "a" -> tagStats,
+        "b" -> TagStats(
+          2,
+          3,
+          Map(
+            "hello" -> 2,
+            "world" -> 1
+          )
+        )
+      ), 2)
+
+      suggestions.headOption.map(_._1) mustEqual Some("a")
+    }
+  }
 }
