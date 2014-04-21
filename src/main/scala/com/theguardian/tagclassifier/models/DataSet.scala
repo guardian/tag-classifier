@@ -1,6 +1,6 @@
 package com.theguardian.tagclassifier.models
 
-import scalaz.Lens
+import scalaz.{Monoid, Lens}
 import scalaz.std.map._
 import scalaz.syntax.monoid._
 
@@ -21,21 +21,25 @@ object DataSet {
     (dataSet, stats) => dataSet.copy(wordStats = stats),
     _.wordStats
   )
+
+  implicit val dataSetMonoid = new Monoid[DataSet] {
+    override def zero: DataSet = empty
+
+    override def append(f1: DataSet, f2: => DataSet): DataSet = {
+      /** unionWith is faster if the smaller Map is passed as the first argument */
+      val smaller :: larger :: Nil = List(f1, f2).sortBy(_.totalArticles)
+
+      DataSet(
+        f1.totalArticles + f2.totalArticles,
+        unionWith(smaller.tagStats, larger.tagStats)(_ |+| _),
+        unionWith(smaller.wordStats, larger.wordStats)(_ |+| _)
+      )
+    }
+  }
 }
 
 case class DataSet(
   totalArticles: Int,
   tagStats: Map[String, TagStats],
   wordStats: Map[String, WordStats]
-) {
-
-  def addTagStats(tagId: String, stats: TagStats) = {
-    DataSet.tagStatsLens.mod(_ |+| Map(tagId -> stats), this)
-  }
-
-  def addWordStats(word: String, stats: WordStats) = {
-    DataSet.wordStatsLens.mod(_ |+| Map(word -> stats), this)
-  }
-
-  def incrementTotalArticles = copy(totalArticles = totalArticles + 1)
-}
+)

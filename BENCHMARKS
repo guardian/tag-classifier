@@ -1,0 +1,12 @@
+Benchmarks on training algorithm without and with par seq
+
+n       time            time par
+
+
+46      0.16            0.11
+93      0.57            0.23
+187     1.89            0.46            
+377     5.95            1.19
+747     20.37           2.84
+1476    58.35           6.25
+

@@ -10,7 +10,7 @@ object TagStats {
     override def append(f1: TagStats, f2: => TagStats): TagStats = TagStats(
       f1.totalArticles + f2.totalArticles,
       f1.totalWords + f2.totalWords,
-      f1.occurrencesOfWord.unionWith(f2.occurrencesOfWord)(_ + _)
+      f2.occurrencesOfWord.unionWith(f1.occurrencesOfWord)(_ + _)
     )
   }
 
