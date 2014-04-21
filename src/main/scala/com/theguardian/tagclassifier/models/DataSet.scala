@@ -5,7 +5,7 @@ import scalaz.std.map._
 import scalaz.syntax.monoid._
 
 object DataSet {
-  def empty = DataSet(0, Map.empty, Map.empty)
+  def empty = DataSet(0, Map.empty)
 
   val totalArticlesLens = Lens.lensu[DataSet, Int](
     (dataSet, total) => dataSet.copy(totalArticles = total),
@@ -17,11 +17,6 @@ object DataSet {
     _.tagStats
   )
 
-  val wordStatsLens = Lens.lensu[DataSet, Map[String, WordStats]](
-    (dataSet, stats) => dataSet.copy(wordStats = stats),
-    _.wordStats
-  )
-
   implicit val dataSetMonoid = new Monoid[DataSet] {
     override def zero: DataSet = empty
 
@@ -31,8 +26,7 @@ object DataSet {
 
       DataSet(
         f1.totalArticles + f2.totalArticles,
-        unionWith(smaller.tagStats, larger.tagStats)(_ |+| _),
-        unionWith(smaller.wordStats, larger.wordStats)(_ |+| _)
+        unionWith(smaller.tagStats, larger.tagStats)(_ |+| _)
       )
     }
   }
@@ -40,6 +34,5 @@ object DataSet {
 
 case class DataSet(
   totalArticles: Int,
-  tagStats: Map[String, TagStats],
-  wordStats: Map[String, WordStats]
+  tagStats: Map[String, TagStats]
 )

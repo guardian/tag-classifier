@@ -1,6 +1,6 @@
 package com.theguardian.tagclassifier
 
-import com.theguardian.tagclassifier.models.{WordStats, Document, DataSet}
+import com.theguardian.tagclassifier.models.{Document, DataSet}
 import grizzled.slf4j.Logging
 import com.theguardian.tagclassifier.util.StopWatch
 import scalaz.syntax.monoid._
@@ -12,8 +12,7 @@ object Trainer extends Logging {
     val dataSet = items.par map { content =>
       DataSet(
         1,
-        (content.tagIds map { _ -> content.tagStats} ).toMap,
-        (content.words.distinct map { _ -> WordStats(content.tagIds) }).toMap
+        (content.tagIds map { _ -> content.tagStats} ).toMap
       )
     } reduce { _ |+| _ }
 

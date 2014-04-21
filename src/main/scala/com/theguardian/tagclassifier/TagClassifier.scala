@@ -1,11 +1,11 @@
 package com.theguardian.tagclassifier
 
 import com.theguardian.tagclassifier.contentapi.{Api, TrainingSetDownloader}
-import com.theguardian.tagclassifier.models.{WordStats, Document}
+import com.theguardian.tagclassifier.models.Document
 import com.theguardian.tagclassifier.util.StopWatch
 
 object TagClassifier extends App {
-  val TrainingSetSize = 20000
+  val TrainingSetSize = 25000
   val TestingSetSize = 50
 
   println(s"Retrieving $TrainingSetSize documents from Content API ...")
@@ -36,6 +36,17 @@ object TagClassifier extends App {
 
   println("Trained ... ")
 
+  println(s"Saw ${dataSet.totalArticles} articles")
+  println(s"Saw ${dataSet.tagStats.size} tags")
+
+  /**
+
+    Really slow for large objects --
+
+  val footprint = ObjectGraphMeasurer.measure(dataSet)
+  println(s"Rough size of data set = ${footprint.estimatedSizeInBytes.toDouble / 1024 / 1024}mb")
+    */
+
   // bite me
   var total = 0d
 
@@ -44,11 +55,6 @@ object TagClassifier extends App {
     println(s"Attempting to predict tags for ${document.id}")
 
     val tagSet = document.tagIds.toSet
-
-    // TODO this is what word stats was for ...
-    val tagsToConsider = (document.words.distinct flatMap { word =>
-      dataSet.wordStats.getOrElse(word, WordStats.empty).tagsSeen
-    }).toSet
 
     val allPredictions = Inference.suggestions(
       document.words,

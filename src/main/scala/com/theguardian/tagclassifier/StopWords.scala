@@ -9,7 +9,11 @@ object StopWords {
     "for", "if", "in", "into", "is", "it",
     "no", "not", "of", "on", "or", "such",
     "that", "the", "their", "then", "there", "these",
-    "they", "this", "to", "was", "will", "with"
+    "they", "this", "to", "was", "will", "with",
+    "he", "have", "'s", "I", "we", "say", "from", "you", "do",
+    "who", "-lrb-", "-rrb-", "make", "would", "one", "which",
+    "she", "get", "about", "more", "go", "year", "all", "out",
+    "when", "up", "can", "what", "so", "its", "people", "take"
   )
 
   /** A descending list of words and the frequencies with which they occur in the document set
