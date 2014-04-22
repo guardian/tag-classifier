@@ -1,27 +1,9 @@
 package com.theguardian.tagclassifier
 
-import com.theguardian.tagclassifier.models.Document
-import scalaz.std.map._
+import com.theguardian.tagclassifier.util.ResourceHelper
+import util.Strings._
 
-object StopWords {
-  val stopWords = Set(
-    "a", "an", "and", "are", "as", "at", "be", "but", "by",
-    "for", "if", "in", "into", "is", "it",
-    "no", "not", "of", "on", "or", "such",
-    "that", "the", "their", "then", "there", "these",
-    "they", "this", "to", "was", "will", "with",
-    "he", "have", "'s", "I", "we", "say", "from", "you", "do",
-    "who", "-lrb-", "-rrb-", "make", "would", "one", "which",
-    "she", "get", "about", "more", "go", "year", "all", "out",
-    "when", "up", "can", "what", "so", "its", "people", "take"
-  )
-
-  /** A descending list of words and the frequencies with which they occur in the document set
-    *
-    * (Useful for generating a stop words set - just choose those which are extremely frequent.)
-    */
-  def fromDocuments(documents: Seq[Document]) =
-    documents.view.flatMap(_.words).foldLeft(Map.empty[String, Int]) { case (acc, word) =>
-      insertWith(acc, word, 1)(_ + _)
-    }.toSeq.sortBy(-_._2)
+object StopWords extends ResourceHelper {
+  /** SMART list of stop words */
+  lazy val smart = Lemmatizer.lemmatize(slurpOrDie("english.stop.txt").words.mkString(" ")).toSet
 }
