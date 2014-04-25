@@ -1,10 +1,13 @@
 package com.theguardian.tagclassifier
 
+import java.io._
 import util.IntegerString
 
 object TagClassifier extends App {
   val DefaultDataSetSize = 20000
+
   val BadParamsErrorCode = 1
+  val BadOutputDirectoryErrorCode = 2
 
   case class OptionParseError(
     errorMessage: String,
@@ -12,15 +15,16 @@ object TagClassifier extends App {
   )
 
   object Options {
-    def empty = Options(None, None)
+    def empty = Options(None, None, None)
   }
 
   case class Options(
     dataSetSize: Option[Int],
-    tagId: Option[String]
+    tagId: Option[String],
+    outputDirectory: Option[String]
   )
 
-  val UsageString = """Usage: miner [--data-set-size num] --tag-id tag"""
+  val UsageString = """Usage: miner [--data-set-size num] [--output-directory dir] --tag-id tag"""
 
   override def main(args: Array[String]) {
     def consumeOptions(args: List[String], accumulator: Options): Either[OptionParseError, Options] = args match {
@@ -32,6 +36,9 @@ object TagClassifier extends App {
 
       case "--tag-id" :: tagId :: rest =>
         consumeOptions(rest, accumulator.copy(tagId = Some(tagId)))
+
+      case "--output-directory" :: outputDirectory :: rest =>
+        consumeOptions(rest, accumulator.copy(outputDirectory = Some(outputDirectory)))
 
       case Nil => Right(accumulator)
 
@@ -47,10 +54,34 @@ object TagClassifier extends App {
         }
         System.exit(BadParamsErrorCode)
 
-      case Right(Options(dataSetSize, Some(tagId))) =>
-        TrainingSetBuilder.build(tagId, dataSetSize.getOrElse(DefaultDataSetSize))
+      case Right(Options(dataSetSize, Some(tagId), outputDir)) =>
+        val directory = outputDir.getOrElse(new File(".").getCanonicalPath)
 
-      case Right(Options(_, None)) =>
+        val featuresFile = new File(directory, "features")
+        val dataSetFile = new File(directory, "data")
+
+        if (featuresFile.canWrite && dataSetFile.canWrite) {
+          println("Training ...")
+          val dataSet = TrainingSetBuilder.build(tagId, dataSetSize.getOrElse(DefaultDataSetSize))
+          println("Trained! Writing to files ...")
+
+          val featuresWriter = new PrintWriter(featuresFile)
+          featuresWriter.write(dataSet.columns.mkString(" ") + "\n")
+          featuresWriter.close()
+
+          val dataSetWriter = new PrintWriter(dataSetFile)
+
+          LibSvmFormatter.format(dataSet) foreach { row =>
+            dataSetWriter.write(row + "\n")
+          }
+
+          dataSetWriter.close()
+        } else {
+          System.err.println("Do not have permission to write to the output directory")
+          System.exit(BadOutputDirectoryErrorCode)
+        }
+
+      case Right(Options(_, None, _)) =>
         System.err.println("You must supply a tag ID")
         System.err.println(UsageString)
         System.exit(BadParamsErrorCode)
