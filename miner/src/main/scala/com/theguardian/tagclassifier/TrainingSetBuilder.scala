@@ -16,16 +16,19 @@ object Document {
 
 case class Document(features: List[String], isInClass: Boolean)
 
+case class Row(
+  isInClass: Boolean,
+  features: Seq[Int]
+)
+
 case class DataSet(
   columns: List[String],
-  rows: Seq[Seq[Int]]
+  rows: Seq[Row]
 )
 
 object TrainingSetBuilder {
   /** Minimum number of times a feature occurs in total for it to be worth considering */
   val MinimumOccurrences = 3
-
-  val ClassificationColumnName = "in class"
 
   def wordCounts(items: ParSeq[Document]) =
     items.map(_.features.frequencies).reduce(unionWith(_, _)(_ + _))
@@ -37,10 +40,10 @@ object TrainingSetBuilder {
 
     val rows = documents map { document =>
       val documentFreqs = document.features.frequencies
-      Seq(features.map(documentFreqs.getOrElse(_, 0)) ++ List(if (document.isInClass) 1 else 0))
+      Seq(Row(document.isInClass, features.map(documentFreqs.getOrElse(_, 0))))
     } reduce { _ ++ _ }
 
-    DataSet(features.toList ++ List(ClassificationColumnName), rows)
+    DataSet(features.toList, rows)
   }
 
   def build(tagId: String, dataSetSize: Int) = {

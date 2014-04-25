@@ -32,8 +32,6 @@ class TrainingSetBuilderSpec extends Specification {
       Document(List("frankly", "my", "dear", "I", "don't", "give", "a", "damn"), true)
     ).par)
 
-    val classificationIndex = fixture.columns.length - 1
-
     "discard words that occur fewer than 3 times" in {
       (fixture.columns must contain("a")) and
         (fixture.columns must contain("it's")) and
@@ -45,23 +43,19 @@ class TrainingSetBuilderSpec extends Specification {
       fixture.columns.init.sorted mustEqual fixture.columns.init
     }
 
-    "append a column for classifying whether the document belongs to the positive set" in {
-      fixture.columns.lastOption mustEqual Some(TrainingSetBuilder.ClassificationColumnName)
-    }
-
-    "have 0 in the final column for documents belonging to the negative set" in {
-      forall(fixture.rows.take(3).map(_.lift(classificationIndex))) { _ mustEqual Some(0) }
+    "have isInClass false for documents belonging to the negative set" in {
+      forall(fixture.rows.take(3).map(_.isInClass)) { _ must beFalse }
     }
 
     "have 1 in the final column for documents belonging to the positive set" in {
-      forall(fixture.rows.drop(3).map(_.lift(classificationIndex))) { _ mustEqual Some(1) }
+      forall(fixture.rows.drop(3).map(_.isInClass)) { _ must beTrue }
     }
 
     "correctly tally frequencies across the documents" in {
-      def lookUp(column: String, row: Seq[Int]) =
+      def lookUp(column: String, row: Row) =
         fixture.columns.indexOf(column) match {
           case -1 => None
-          case idx => row.lift(idx)
+          case idx => row.features.lift(idx)
         }
 
       val firstDoc = fixture.rows.head

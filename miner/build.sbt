@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "org.jsoup" % "jsoup" % "1.7.3",
   "com.netflix.rxjava" % "rxjava-scala" % "0.17.6",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.3.1",
-  "edu.stanford.nlp" % "stanford-corenlp" % "3.3.1" classifier "models"
+  "edu.stanford.nlp" % "stanford-corenlp" % "3.3.1" classifier "models",
+  "tw.edu.ntu.csie" % "libsvm" % "3.17"
 )
 
 fork in run := true
