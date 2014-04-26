@@ -6,7 +6,7 @@ object LibSvmFormatter {
       val classLabel = if (row.isInClass) "+1" else "-1"
 
       /** 1-indexing features here, to match heart_scale */
-      classLabel + " " + (row.features.zipWithIndex map { case (feature, index) =>
+      classLabel + " " + (row.features.zipWithIndex.filter(_._1 > 0) map { case (feature, index) =>
         s"${index + 1}:$feature"
       }).mkString(" ")
     }

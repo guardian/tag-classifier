@@ -8,14 +8,14 @@ class LibSvmFormatterSpec extends Specification {
       LibSvmFormatter.format(DataSet(
         List("foo", "bar"),
         Seq(
-          Row(true, Seq(20, 4)),
-          Row(true, Seq(2, 3)),
-          Row(false, Seq(10, 10))
+          Row(true, Seq(20, 0, 4)),
+          Row(true, Seq(2, 3, 0)),
+          Row(false, Seq(0, 10, 10))
         )
       )).toList mustEqual List(
-        "+1 1:20 2:4",
+        "+1 1:20 3:4",
         "+1 1:2 2:3",
-        "-1 1:10 2:10"
+        "-1 2:10 3:10"
       )
     }
   }

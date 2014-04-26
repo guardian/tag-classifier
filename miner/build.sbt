@@ -6,6 +6,10 @@ name := "tag-classifier"
 
 scalaVersion := "2.10.4"
 
+resolvers ++= Seq(
+  "Guardian GitHub Releases" at "http://guardian.github.com/maven/repo-releases"
+)
+
 libraryDependencies ++= Seq(
   "org.clapper" %% "grizzled-slf4j" % "1.0.1",
   "com.gu.openplatform" %% "content-api-client" % "2.11",
@@ -19,4 +23,9 @@ libraryDependencies ++= Seq(
   "tw.edu.ntu.csie" % "libsvm" % "3.17"
 )
 
+fork in run := true
+
+javaOptions in run += "-Xmx8G"
+
 assemblySettings
+

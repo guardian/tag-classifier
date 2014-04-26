@@ -60,8 +60,7 @@ object TagClassifier extends App {
 
         def createFileOrDie(file: File) {
           if (file.exists) {
-            System.err.println(s"${file.getCanonicalPath} already exists")
-            System.exit(FilesAlreadyExistErrorCode)
+            file.delete()
           }
 
           if (!file.createNewFile()) {
