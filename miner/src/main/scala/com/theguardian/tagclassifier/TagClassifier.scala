@@ -8,6 +8,7 @@ object TagClassifier extends App {
 
   val BadParamsErrorCode = 1
   val BadOutputDirectoryErrorCode = 2
+  val FilesAlreadyExistErrorCode = 3
 
   case class OptionParseError(
     errorMessage: String,
@@ -57,8 +58,24 @@ object TagClassifier extends App {
       case Right(Options(dataSetSize, Some(tagId), outputDir)) =>
         val directory = outputDir.getOrElse(new File(".").getCanonicalPath)
 
+        def createFileOrDie(file: File) {
+          if (file.exists) {
+            System.err.println(s"${file.getCanonicalPath} already exists")
+            System.exit(FilesAlreadyExistErrorCode)
+          }
+
+          if (!file.createNewFile()) {
+            System.err.println(s"Could not create ${file.getCanonicalPath}")
+          }
+        }
+
         val featuresFile = new File(directory, "features")
+
+        createFileOrDie(featuresFile)
+
         val dataSetFile = new File(directory, "data")
+
+        createFileOrDie(dataSetFile)
 
         if (featuresFile.canWrite && dataSetFile.canWrite) {
           println("Training ...")

@@ -5,12 +5,13 @@ import com.gu.openplatform.contentapi.model.Content
 import contentapi._
 import util.Seqs._
 import scalaz.std.map._
+import org.jsoup.Jsoup
 
 object Document {
   def fromContent(isInClass: Boolean)(content: Content) = {
-    Document(Lemmatizer.lemmatize(content.body getOrElse {
+    Document(Lemmatizer.lemmatize(Jsoup.parse(content.body getOrElse {
       throw new RuntimeException("Cannot lemmatize document without a body")
-    }).filterNot(StopWords.smart.contains), isInClass)
+    }).text()).filterNot(StopWords.smart.contains), isInClass)
   }
 }
 

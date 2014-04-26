@@ -1,4 +1,4 @@
-
+import AssemblyKeys._
 
 organization := "com.theguardian"
 
@@ -19,6 +19,4 @@ libraryDependencies ++= Seq(
   "tw.edu.ntu.csie" % "libsvm" % "3.17"
 )
 
-fork in run := true
-
-javaOptions in run += "-Xmx8G"
+assemblySettings
