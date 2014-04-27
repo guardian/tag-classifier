@@ -7,14 +7,10 @@ A work in progress ...
 
 ## TODO
 
-* Finish the miner app, which should be able to create data sets for a given
-  tag. The data sets should be feature vectors of all the words seen in the
-  training data set that were not stop words and that occurred at least 3
-  times;
-* Write a logistic regression classifier that uses the data sets, maybe in
-  Octave. Support Vector Machines are supposed to be very good at this kind of
-  problem and allow you to use vectors with very large dimensions, which is
-  good for text classification for obvious reasons;
-* Write up some scripts that train all 47000 tags or so that we have on a
-  batch job;
-* Stick the classifiers onto some boxes on AWS, stick a REST API in front.
+* Get `tag-miner` to constantly process tags, training models with
+  `liblinear`, and uploading the models to S3;
+* Write new app `classifier-api`, which downloads the models, and is provides
+  a REST endpoint that accepts document bodies and returns a list of tags that
+  the classifier thinks should be appended.
+
+
