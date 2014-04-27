@@ -7,19 +7,23 @@ data_set_size=$(wc ./data | awk '{ print $1 }')
 
 echo "Processing data set of $data_set_size records"
 
-split -l $(($data_set_size / 2)) ./data
+class_size=$(($data_set_size / 2))
+
+split -l $class_size ./data
 
 mv xaa positives
 mv xab negatives
 
-size=$(($data_set_size / 4))
+# Bash doesn't do floating point arithmetic :-(
+training_set_perc=80
+set_size=$(($class_size * $training_set_perc / 100))
 
-split -l $size positives
+split -l $set_size positives
 
 mv xaa training_positives
 mv xab testing_positives
 
-split -l $size negatives
+split -l $set_size negatives
 
 mv xaa training_negatives
 mv xab testing_negatives
