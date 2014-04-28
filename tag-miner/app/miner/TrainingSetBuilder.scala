@@ -14,10 +14,34 @@ case class Row(
   features: Seq[Int]
 )
 
+object DataSet {
+  def empty = DataSet(Nil, Nil)
+}
+
 case class DataSet(
   columns: List[String],
   rows: Seq[(Seq[FeatureNode], Boolean)]
-)
+) {
+  def size = rows.length
+
+  def partition(fraction: Double) = {
+    require(fraction > 0.0 && fraction < 1.0, s"Fraction ($fraction) must be 0 > n > 1")
+
+    val rowsByClass = rows.groupBy(_._2)
+
+    def partitionRows(rows: Seq[(Seq[FeatureNode], Boolean)]) = {
+      val total = rows.length
+
+      val left = Math.floor(total * fraction).toInt
+      (rows.take(left), rows.drop(left))
+    }
+
+    val (leftPositives, rightPositives) = partitionRows(rowsByClass.getOrElse(true, Nil))
+    val (leftNegatives, rightNegatives) = partitionRows(rowsByClass.getOrElse(false, Nil))
+
+    (DataSet(columns, leftPositives ++ leftNegatives), DataSet(columns, rightPositives ++ rightNegatives))
+  }
+}
 
 object TrainingSetBuilder extends Logging {
   /** Minimum number of times a feature occurs in total for it to be worth considering */
