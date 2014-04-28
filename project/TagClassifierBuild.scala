@@ -47,9 +47,12 @@ object TagClassifierBuild extends Build {
 
   val tagMiner = commonPlayProject("tag-miner", "tag-miner")
     .settings(
+      resolvers += "Guardian GitHub Releases" at
+        "http://guardian.github.com/maven/repo-releases",
       libraryDependencies ++= Seq(
         rxScala,
-        libLinear
+        libLinear,
+        guardianManagementPlay
       )
     )
     .dependsOn(common)

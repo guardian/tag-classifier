@@ -11,4 +11,5 @@ object Dependencies {
   val coreNlp = "edu.stanford.nlp" % "stanford-corenlp" % "3.3.1"
   val coreNlpModels = "edu.stanford.nlp" % "stanford-corenlp" % "3.3.1" classifier "models"
   val libLinear = "de.bwaldvogel" % "liblinear" % "1.94"
+  val guardianManagementPlay = "com.gu" %% "management-play" % "5.26" exclude("javassist", "javassist")
 }
