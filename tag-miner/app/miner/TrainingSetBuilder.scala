@@ -6,6 +6,8 @@ import com.theguardian.tagclassifier.util.Seqs._
 import com.theguardian.tagclassifier.Document
 import miner.contentapi._
 import de.bwaldvogel.liblinear.FeatureNode
+import grizzled.slf4j.Logging
+import com.theguardian.tagclassifier.util.StopWatch
 
 case class Row(
   isInClass: Boolean,
@@ -17,7 +19,7 @@ case class DataSet(
   rows: Seq[(Seq[FeatureNode], Boolean)]
 )
 
-object TrainingSetBuilder {
+object TrainingSetBuilder extends Logging {
   /** Minimum number of times a feature occurs in total for it to be worth considering */
   val MinimumOccurrences = 3
 
@@ -25,9 +27,18 @@ object TrainingSetBuilder {
     items.map(_.features.frequencies).reduce(unionWith(_, _)(_ + _))
 
   def buildDataSet(documents: ParSeq[Document]) = {
-    val wordFrequencies = wordCounts(documents)
+    logger.info(s"Choosing features from ${documents.length} documents")
 
+    val chooseWatch = new StopWatch
+
+    val wordFrequencies = wordCounts(documents)
     val features = wordFrequencies.toSeq.filter(_._2 >= MinimumOccurrences).map(_._1).sorted
+
+    logger.info(s"Chose ${features.length} features that occurred at least $MinimumOccurrences times in the " +
+      s"documents in ${chooseWatch.elapsed}ms")
+    logger.info(s"Extracting features from documents ...")
+
+    val extractWatch = new StopWatch
 
     val rows = documents map { document =>
       val documentFreqs = document.features.frequencies
@@ -38,6 +49,8 @@ object TrainingSetBuilder {
         }
       }, document.isInClass))
     } reduce { _ ++ _ }
+
+    logger.info(s"Extracted features in ${extractWatch.elapsed}ms")
 
     DataSet(features.toList, rows)
   }

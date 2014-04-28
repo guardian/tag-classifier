@@ -16,10 +16,7 @@ object Api extends contentapi.FutureAsyncApi with contentapi.connection.Dispatch
 
   override def GET(urlString: String, headers: Iterable[(String, String)]): Future[HttpResponse] = {
     val future = super.GET(urlString, headers)
-
     logger.info(s"Getting $urlString")
-    println(s"Getting $urlString")
-
     future
   }
 }
