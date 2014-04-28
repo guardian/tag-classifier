@@ -40,18 +40,20 @@ object TagClassifierBuild extends Build {
         specs2,
         jSoup,
         coreNlp,
-        coreNlpModels
+        coreNlpModels,
+        libLinear
       )
     )
 
   val tagMiner = commonPlayProject("tag-miner", "tag-miner")
     .settings(
       libraryDependencies ++= Seq(
-        rxScala
+        rxScala,
+        libLinear
       )
     )
     .dependsOn(common)
 
   val root = Project("tag-classifier", file("."))
-    .aggregate(tagMiner)
+    .aggregate(tagMiner, common)
 }

@@ -1,6 +1,8 @@
-package com.theguardian.tagclassifier
+package miner
 
 import org.specs2.mutable.Specification
+import com.theguardian.tagclassifier.Document
+import de.bwaldvogel.liblinear.FeatureNode
 
 class TrainingSetBuilderSpec extends Specification {
   "wordCounts" should {
@@ -44,18 +46,18 @@ class TrainingSetBuilderSpec extends Specification {
     }
 
     "have isInClass false for documents belonging to the negative set" in {
-      forall(fixture.rows.take(3).map(_.isInClass)) { _ must beFalse }
+      forall(fixture.rows.take(3).map(_._2)) { _ must beFalse }
     }
 
     "have 1 in the final column for documents belonging to the positive set" in {
-      forall(fixture.rows.drop(3).map(_.isInClass)) { _ must beTrue }
+      forall(fixture.rows.drop(3).map(_._2)) { _ must beTrue }
     }
 
     "correctly tally frequencies across the documents" in {
-      def lookUp(column: String, row: Row) =
+      def lookUp(column: String, row: (Seq[FeatureNode], Boolean)) =
         fixture.columns.indexOf(column) match {
           case -1 => None
-          case idx => row.features.lift(idx)
+          case idx => row._1.find(_.getIndex == idx).map(_.getValue)
         }
 
       val firstDoc = fixture.rows.head
@@ -63,7 +65,7 @@ class TrainingSetBuilderSpec extends Specification {
       lookUp("it's", firstDoc) mustEqual Some(1)
       lookUp("a", firstDoc) mustEqual Some(1)
       lookUp("whole", firstDoc) mustEqual None
-      lookUp("time", firstDoc) mustEqual Some(0)
+      lookUp("time", firstDoc) mustEqual None
 
       val thirdDoc = fixture.rows(2)
 

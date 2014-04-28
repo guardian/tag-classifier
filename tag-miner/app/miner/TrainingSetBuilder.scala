@@ -5,6 +5,7 @@ import scalaz.std.map._
 import com.theguardian.tagclassifier.util.Seqs._
 import com.theguardian.tagclassifier.Document
 import miner.contentapi._
+import de.bwaldvogel.liblinear.FeatureNode
 
 case class Row(
   isInClass: Boolean,
@@ -13,7 +14,7 @@ case class Row(
 
 case class DataSet(
   columns: List[String],
-  rows: Seq[Row]
+  rows: Seq[(Seq[FeatureNode], Boolean)]
 )
 
 object TrainingSetBuilder {
@@ -30,7 +31,12 @@ object TrainingSetBuilder {
 
     val rows = documents map { document =>
       val documentFreqs = document.features.frequencies
-      Seq(Row(document.isInClass, features.map(documentFreqs.getOrElse(_, 0))))
+
+      Seq((features.zipWithIndex flatMap { case (feature, index) =>
+        documentFreqs.get(feature) map { frequency =>
+          new FeatureNode(index, frequency)
+        }
+      }, document.isInClass))
     } reduce { _ ++ _ }
 
     DataSet(features.toList, rows)
@@ -44,7 +50,8 @@ object TrainingSetBuilder {
       Document.fromContent(false)(content.bodyOrDie)
     )
 
-    buildDataSet((withTag ++ withoutTag).take(dataSetSize)
+    buildDataSet((withTag ++ withoutTag)
+      .take(dataSetSize)
       .toBlockingObservable
       .toList
       .par)
