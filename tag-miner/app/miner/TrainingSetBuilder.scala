@@ -69,7 +69,7 @@ object TrainingSetBuilder extends Logging {
 
       Seq((features.zipWithIndex flatMap { case (feature, index) =>
         documentFreqs.get(feature) map { frequency =>
-          new FeatureNode(index, frequency)
+          new FeatureNode(index + 1, frequency)
         }
       }, document.isInClass))
     } reduce { _ ++ _ }

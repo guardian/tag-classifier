@@ -12,7 +12,7 @@ object TrainingSetDownloader extends Logging {
   val PageSize = 50
 
   /** So as not to overload Content API */
-  val DelayBetweenQueries = 1.second
+  val DelayBetweenQueries = 100.millis
 
   val query = Api
     .search
