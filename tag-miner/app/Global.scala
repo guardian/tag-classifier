@@ -8,7 +8,7 @@ object Global extends WithFilters() with Logging {
   override def onStart(app: Application): Unit = {
     super.onStart(app)
 
-    val dataSet = TrainingSetBuilder.build("tone/comment", 2000)
+    val dataSet = TrainingSetBuilder.build("tone/comment", 10000)
 
     val (trainingSet, testingSet) = dataSet.partition(0.8)
 

@@ -43,12 +43,40 @@ case class DataSet(
   }
 }
 
+object FeatureRange {
+  def zero = FeatureRange(0, 0)
+}
+
+case class FeatureRange(min: Int, max: Int) {
+  def union(other: FeatureRange) = FeatureRange(
+    other.min min min,
+    other.max max max
+  )
+
+  def scale(x: Int) = (x - min).toDouble / (max - min)
+}
+
 object TrainingSetBuilder extends Logging {
   /** Minimum number of times a feature occurs in total for it to be worth considering */
   val MinimumOccurrences = 3
 
   def wordCounts(items: ParSeq[Document]) =
     items.map(_.features.frequencies).reduce(unionWith(_, _)(_ + _))
+
+  /** Gives the max & min frequency seen for any particular feature in the whole document set - used for feature
+    * scaling
+    */
+  def featureRanges(items: ParSeq[Document], features: Seq[String]) = {
+    val emptyFeatures = features.map(_ -> FeatureRange.zero).toMap
+
+    val ranges = items.map(item => emptyFeatures ++ item.features.frequencies.mapValues(x => FeatureRange(x, x)))
+
+    /** this accounts for features that do not occur in all documents, without the overhead of producing full feature
+      * maps for every document in the set
+      */
+    parSeqHeadPLens[Map[String, FeatureRange]].mod(emptyFeatures ++ _, ranges)
+      .reduce(unionWith(_, _)(_ union _))
+  }
 
   def buildDataSet(documents: ParSeq[Document]) = {
     logger.info(s"Choosing features from ${documents.length} documents")
@@ -57,6 +85,7 @@ object TrainingSetBuilder extends Logging {
 
     val wordFrequencies = wordCounts(documents)
     val features = wordFrequencies.toSeq.filter(_._2 >= MinimumOccurrences).map(_._1).sorted
+    val scalers = featureRanges(documents, features)
 
     logger.info(s"Chose ${features.length} features that occurred at least $MinimumOccurrences times in the " +
       s"documents in ${chooseWatch.elapsed}ms")
@@ -69,7 +98,8 @@ object TrainingSetBuilder extends Logging {
 
       Seq((features.zipWithIndex flatMap { case (feature, index) =>
         documentFreqs.get(feature) map { frequency =>
-          new FeatureNode(index + 1, frequency)
+          val scaled = scalers(feature).scale(frequency)
+          new FeatureNode(index + 1, scaled)
         }
       }, document.isInClass))
     } reduce { _ ++ _ }
