@@ -51,8 +51,7 @@ object TagClassifierBuild extends Build {
         "http://guardian.github.com/maven/repo-releases",
       libraryDependencies ++= Seq(
         rxScala,
-        libLinear,
-        guardianManagementPlay
+        libLinear
       )
     )
     .dependsOn(common)
