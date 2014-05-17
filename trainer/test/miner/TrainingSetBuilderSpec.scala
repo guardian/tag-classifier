@@ -26,7 +26,7 @@ class TrainingSetBuilderSpec extends Specification {
   }
 
   "buildDataSet" should {
-    val fixture = TrainingSetBuilder.buildDataSet(Seq(
+    val (fixture, _) = TrainingSetBuilder.buildDataSet(Seq(
       Document(List("it's", "a", "whole", "new", "world"), false),
       Document(List("it's", "show", "down", "time"), false),
       Document(List("time", "and", "time", "again"), false),
