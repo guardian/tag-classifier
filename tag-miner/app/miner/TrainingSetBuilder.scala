@@ -106,7 +106,11 @@ object TrainingSetBuilder extends Logging {
 
     logger.info(s"Extracted features in ${extractWatch.elapsed}ms")
 
-    DataSet(features.toList, rows)
+    val featureList = features.toList
+
+    val rangeList = features.flatMap(scalers.get)
+
+    (DataSet(featureList, rows), rangeList)
   }
 
   def build(tagId: String, dataSetSize: Int) = {

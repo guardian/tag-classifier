@@ -32,12 +32,14 @@ object TagClassifierBuild extends Build {
   val commonDependencies = Seq(
     awsSdk,
     contentApiClient,
+    commonsIo,
     slf4j,
     specs2,
     jSoup,
     coreNlp,
     coreNlpModels,
-    libLinear
+    libLinear,
+    pickling
   )
 
   val common = Project("common", file("common"))

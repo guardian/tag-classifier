@@ -8,4 +8,6 @@ object TagClassifierConfiguration {
   val apiKey = conf.getString("content_api.key")
 
   val apiEndPoint = conf.getString("content_api.host")
+
+  val s3Bucket = conf.getRequiredString("s3.bucket")
 }
