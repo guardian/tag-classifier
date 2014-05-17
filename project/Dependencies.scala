@@ -1,6 +1,7 @@
 import sbt._
 
 object Dependencies {
+  val akkaAgent = "com.typesafe.akka" %% "akka-agent" % "2.1.0"
   val awsSdk = "com.amazonaws" % "aws-java-sdk" % "1.7.9"
   val commonsIo = "org.apache.commons" % "commons-io" % "1.3.2"
   val contentApiClient = "com.gu.openplatform" %% "content-api-client" % "2.11"

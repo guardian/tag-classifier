@@ -14,6 +14,8 @@ object TagClassifierBuild extends Build {
       .settings(magentaArtifactSettings: _*)
       .settings(
         executableName := execName,
+        resolvers += "Guardian GitHub Releases" at
+          "http://guardian.github.com/maven/repo-releases",
         testOptions in Test := Nil,
         mergeStrategy in assembly <<= (mergeStrategy in assembly) {
           (old) => {
@@ -42,15 +44,11 @@ object TagClassifierBuild extends Build {
 
   val common = Project("common", file("common"))
     .settings(
-      resolvers += "Guardian GitHub Releases" at
-        "http://guardian.github.com/maven/repo-releases",
       libraryDependencies ++= commonDependencies
     )
 
-  val tagMiner = commonPlayProject("trainer", "trainer")
+  val trainer = commonPlayProject("trainer", "trainer")
     .settings(
-      resolvers += "Guardian GitHub Releases" at
-        "http://guardian.github.com/maven/repo-releases",
       libraryDependencies ++= Seq(
         rxScala
       ),
@@ -58,6 +56,14 @@ object TagClassifierBuild extends Build {
     )
     .dependsOn(common)
 
+  val classifier = commonPlayProject("classifier", "classifier")
+    .settings(
+      libraryDependencies ++= Seq(
+        akkaAgent
+      ),
+      libraryDependencies ++= commonDependencies
+    ).dependsOn(common)
+
   val root = Project("tag-classifier", file("."))
-    .aggregate(tagMiner, common)
+    .aggregate(trainer, classifier, common)
 }

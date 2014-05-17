@@ -1,3 +1,5 @@
+package com.theguardian.tagclassifier
+
 import com.amazonaws.util.StringInputStream
 import de.bwaldvogel.liblinear.{Linear, Model}
 import java.io.{InputStreamReader, StringWriter, CharArrayWriter}

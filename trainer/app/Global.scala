@@ -1,5 +1,5 @@
 import com.theguardian.tagclassifier.util.StopWatch
-import data.{TestingInfo, ModelInfo, S3Storage}
+import com.theguardian.tagclassifier.data.{TestingInfo, ModelInfo, S3Storage}
 import grizzled.slf4j.Logging
 import miner.TrainingSetBuilder
 import play.api.{Play, Application}

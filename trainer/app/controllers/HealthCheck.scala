@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc.{Action, Controller}
 import miner.contentapi.Api
-import data.S3Storage
+import com.theguardian.tagclassifier.data.S3Storage
 import com.theguardian.tagclassifier.util.Futures._
 import scala.concurrent.Future
 import grizzled.slf4j.Logging

@@ -8,6 +8,7 @@ import miner.contentapi._
 import de.bwaldvogel.liblinear.FeatureNode
 import grizzled.slf4j.Logging
 import com.theguardian.tagclassifier.util.StopWatch
+import com.theguardian.tagclassifier.models.FeatureRange
 
 case class Row(
   isInClass: Boolean,
@@ -41,19 +42,6 @@ case class DataSet(
 
     (DataSet(columns, leftPositives ++ leftNegatives), DataSet(columns, rightPositives ++ rightNegatives))
   }
-}
-
-object FeatureRange {
-  def zero = FeatureRange(0, 0)
-}
-
-case class FeatureRange(min: Int, max: Int) {
-  def union(other: FeatureRange) = FeatureRange(
-    other.min min min,
-    other.max max max
-  )
-
-  def scale(x: Int) = (x - min).toDouble / (max - min)
 }
 
 object TrainingSetBuilder extends Logging {

@@ -1,17 +1,15 @@
-package data
+package com.theguardian.tagclassifier.data
 
 import com.amazonaws.services.s3._
 import de.bwaldvogel.liblinear.Model
-import miner.FeatureRange
 import scala.pickling._
 import scala.pickling.binary._
-import conf.TagClassifierConfiguration
 import java.io.ByteArrayInputStream
 import com.amazonaws.services.s3.model.ObjectMetadata
-import com.amazonaws.regions.{Region, Regions}
 import org.apache.commons.io.IOUtils
 import scala.util.Try
 import grizzled.slf4j.Logging
+import com.theguardian.tagclassifier.models.FeatureRange
 
 case class ModelSerialization(
   tagId: String,
@@ -36,11 +34,7 @@ case class ModelInfo(
   testingInfo: TestingInfo
 )
 
-object S3Storage extends Logging {
-  val bucket = TagClassifierConfiguration.s3Bucket
-
-  val client = new AmazonS3Client()
-
+case class S3Storage(client: AmazonS3Client, bucket: String) extends Logging {
   def key(tagId: String) = tagId.replace("/", "-")
 
   def storeModel(modelInfo: ModelInfo) = Try {
