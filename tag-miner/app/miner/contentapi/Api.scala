@@ -2,7 +2,7 @@ package miner.contentapi
 
 import com.gu.openplatform.contentapi
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.theguardian.tagclassifier.conf.TagClassifierConfiguration
+import conf.TagClassifierConfiguration
 import dispatch.Future
 import com.gu.openplatform.contentapi.connection.HttpResponse
 import grizzled.slf4j.Logging

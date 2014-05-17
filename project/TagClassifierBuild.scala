@@ -35,7 +35,6 @@ object TagClassifierBuild extends Build {
         "http://guardian.github.com/maven/repo-releases",
       libraryDependencies ++= Seq(
         contentApiClient,
-        guardianConfiguration,
         slf4j,
         specs2,
         jSoup,
