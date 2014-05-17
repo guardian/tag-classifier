@@ -29,19 +29,22 @@ object TagClassifierBuild extends Build {
         }
     )
 
+  val commonDependencies = Seq(
+    awsSdk,
+    contentApiClient,
+    slf4j,
+    specs2,
+    jSoup,
+    coreNlp,
+    coreNlpModels,
+    libLinear
+  )
+
   val common = Project("common", file("common"))
     .settings(
       resolvers += "Guardian GitHub Releases" at
         "http://guardian.github.com/maven/repo-releases",
-      libraryDependencies ++= Seq(
-        contentApiClient,
-        slf4j,
-        specs2,
-        jSoup,
-        coreNlp,
-        coreNlpModels,
-        libLinear
-      )
+      libraryDependencies ++= commonDependencies
     )
 
   val tagMiner = commonPlayProject("tag-miner", "tag-miner")
@@ -49,9 +52,9 @@ object TagClassifierBuild extends Build {
       resolvers += "Guardian GitHub Releases" at
         "http://guardian.github.com/maven/repo-releases",
       libraryDependencies ++= Seq(
-        rxScala,
-        libLinear
-      )
+        rxScala
+      ),
+      libraryDependencies ++= commonDependencies
     )
     .dependsOn(common)
 

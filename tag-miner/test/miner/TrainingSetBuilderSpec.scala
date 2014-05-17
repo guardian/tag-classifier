@@ -53,23 +53,26 @@ class TrainingSetBuilderSpec extends Specification {
       forall(fixture.rows.drop(3).map(_._2)) { _ must beTrue }
     }
 
-    "correctly tally frequencies across the documents" in {
+    "correctly tally and normalize frequencies across the documents" in {
       def lookUp(column: String, row: (Seq[FeatureNode], Boolean)) =
         fixture.columns.indexOf(column) match {
           case -1 => None
-          case idx => row._1.find(_.getIndex == idx).map(_.getValue)
+          case idx => row._1.find(_.getIndex == idx + 1).map(_.getValue)
         }
 
       val firstDoc = fixture.rows.head
 
       lookUp("it's", firstDoc) mustEqual Some(1)
-      lookUp("a", firstDoc) mustEqual Some(1)
       lookUp("whole", firstDoc) mustEqual None
       lookUp("time", firstDoc) mustEqual None
 
+      val secondDoc = fixture.rows(1)
+
+      lookUp("time", secondDoc) mustEqual Some(0.5)
+
       val thirdDoc = fixture.rows(2)
 
-      lookUp("time", thirdDoc) mustEqual Some(2)
+      lookUp("time", thirdDoc) mustEqual Some(1)
     }
   }
 }
