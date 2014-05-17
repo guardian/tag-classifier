@@ -77,4 +77,12 @@ object S3Storage extends Logging {
       model <- modelFromString(modelString)
     } yield ModelInfo(tagId, features, ranges, model, testInfo)
   }
+
+  def accessControlList = {
+    logger.info(s"Getting ACL for $bucket")
+
+    Try {
+      client.getBucketAcl(bucket)
+    }
+  }
 }

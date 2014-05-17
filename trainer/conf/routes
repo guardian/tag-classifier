@@ -1,4 +1,3 @@
 # Routes
 
-# nothing here for now ...
-
+GET     /healthcheck     controllers.HealthCheck.healthCheck
