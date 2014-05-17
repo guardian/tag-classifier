@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.regions.{Region, Regions}
 import org.apache.commons.io.IOUtils
 import scala.util.Try
+import grizzled.slf4j.Logging
 
 case class ModelSerialization(
   tagId: String,
@@ -35,15 +36,16 @@ case class ModelInfo(
   testingInfo: TestingInfo
 )
 
-object S3Storage {
+object S3Storage extends Logging {
   val bucket = TagClassifierConfiguration.s3Bucket
 
   val client = new AmazonS3Client()
-  client.setRegion(Region.getRegion(Regions.EU_WEST_1))
 
   def key(tagId: String) = tagId.replace("/", "-")
 
-  def storeModel(modelInfo: ModelInfo) {
+  def storeModel(modelInfo: ModelInfo) = Try {
+    logger.info(s"Storing model for ${modelInfo.tagId} in $bucket")
+
     val serialized = ModelSerialization(
       modelInfo.tagId,
       modelInfo.model.serializeToString,
@@ -54,12 +56,19 @@ object S3Storage {
 
     val pickled: BinaryPickle = serialized.pickle(binary.pickleFormat)
 
+    logger.info(s"Uploading ${pickled.value.length.toDouble / 1024}kb to S3")
+
     val inputStream = new ByteArrayInputStream(pickled.value)
 
-    client.putObject(bucket, key(modelInfo.tagId), inputStream, new ObjectMetadata())
+    val metadata = new ObjectMetadata()
+    metadata.setContentLength(pickled.value.length.toLong)
+
+    client.putObject(bucket, key(modelInfo.tagId), inputStream, metadata)
   }
 
   def loadModel(modelId: String) = {
+    logger.info(s"Loading model $modelId from $bucket")
+
     /** TODO error handling here */
     for {
       ModelSerialization(tagId, modelString, features, ranges, testInfo) <- Try {
