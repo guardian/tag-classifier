@@ -2,7 +2,7 @@ package conf
 
 import play.api.Play.current
 
-object TagClassifierConfiguration {
+object TrainerConfiguration {
   private val conf = current.configuration
 
   val apiKey = conf.getString("content_api.key")

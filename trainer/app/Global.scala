@@ -1,5 +1,8 @@
+import com.amazonaws.services.s3.AmazonS3Client
 import com.theguardian.tagclassifier.util.StopWatch
 import com.theguardian.tagclassifier.data.{TestingInfo, ModelInfo, S3Storage}
+import conf.TrainerConfiguration
+import data.TrainerS3Storage
 import grizzled.slf4j.Logging
 import miner.TrainingSetBuilder
 import play.api.{Play, Application}
@@ -30,7 +33,7 @@ object Global extends WithFilters() with Logging {
 
       val stopWatch = new StopWatch
 
-      S3Storage.storeModel(ModelInfo(
+      TrainerS3Storage.storage.storeModel(ModelInfo(
         testTag,
         dataSet.columns,
         scalingVector.toList,

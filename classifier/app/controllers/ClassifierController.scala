@@ -5,6 +5,7 @@ import com.theguardian.tagclassifier.Document
 import data.Classifiers
 import models.{TagSuggestions, Suggestion}
 import play.api.libs.json.Json
+import models.JsonImplicits._
 
 object ClassifierController extends Controller {
   val MaxSuggestions = 10
