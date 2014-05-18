@@ -14,8 +14,10 @@ object TagClassifierBuild extends Build {
       .settings(magentaArtifactSettings: _*)
       .settings(
         executableName := execName,
-        resolvers += "Guardian GitHub Releases" at
-          "http://guardian.github.com/maven/repo-releases",
+        resolvers ++= Seq(
+          "Guardian GitHub Releases" at "http://guardian.github.com/maven/repo-releases",
+          "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+        ),
         testOptions in Test := Nil,
         mergeStrategy in assembly <<= (mergeStrategy in assembly) {
           (old) => {
@@ -39,7 +41,7 @@ object TagClassifierBuild extends Build {
     coreNlp,
     coreNlpModels,
     libLinear,
-    pickling
+    playJson
   )
 
   val common = Project("common", file("common"))

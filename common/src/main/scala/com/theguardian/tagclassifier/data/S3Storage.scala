@@ -2,14 +2,13 @@ package com.theguardian.tagclassifier.data
 
 import com.amazonaws.services.s3._
 import de.bwaldvogel.liblinear.Model
-import scala.pickling._
-import scala.pickling.binary._
 import java.io.ByteArrayInputStream
 import com.amazonaws.services.s3.model.ObjectMetadata
 import org.apache.commons.io.IOUtils
 import scala.util.Try
 import grizzled.slf4j.Logging
 import com.theguardian.tagclassifier.models.FeatureRange
+import play.api.libs.json.Json
 
 case class ModelSerialization(
   tagId: String,
@@ -34,7 +33,17 @@ case class ModelInfo(
   testingInfo: TestingInfo
 )
 
+object JsonImplicits {
+  implicit val featureRangeFormat = Json.format[FeatureRange]
+  implicit val testingInfoFormat = Json.format[TestingInfo]
+  implicit val modelSerializationFormat = Json.format[ModelSerialization]
+}
+
 case class S3Storage(client: AmazonS3Client, bucket: String) extends Logging {
+  import JsonImplicits._
+
+  val Encoding = "utf-8"
+
   def key(tagId: String) = tagId.replace("/", "-")
 
   def storeModel(modelInfo: ModelInfo) = Try {
@@ -48,14 +57,14 @@ case class S3Storage(client: AmazonS3Client, bucket: String) extends Logging {
       modelInfo.testingInfo
     )
 
-    val pickled: BinaryPickle = serialized.pickle(binary.pickleFormat)
+    val pickled = Json.stringify(Json.toJson(serialized))
+    val jsonBytes = pickled.getBytes(Encoding)
 
-    logger.info(s"Uploading ${pickled.value.length.toDouble / 1024}kb to S3")
+    logger.info(s"Uploading ${jsonBytes.length.toDouble / 1024}kb to S3")
 
-    val inputStream = new ByteArrayInputStream(pickled.value)
-
+    val inputStream = new ByteArrayInputStream(jsonBytes)
     val metadata = new ObjectMetadata()
-    metadata.setContentLength(pickled.value.length.toLong)
+    metadata.setContentLength(jsonBytes.length)
 
     client.putObject(bucket, key(modelInfo.tagId), inputStream, metadata)
   }
@@ -66,7 +75,9 @@ case class S3Storage(client: AmazonS3Client, bucket: String) extends Logging {
     /** TODO error handling here */
     for {
       ModelSerialization(tagId, modelString, features, ranges, testInfo) <- Try {
-        IOUtils.toByteArray(client.getObject(bucket, modelId).getObjectContent).unpickle[ModelSerialization]
+        Json.fromJson[ModelSerialization](Json.parse(
+          new String(IOUtils.toByteArray(client.getObject(bucket, modelId).getObjectContent), Encoding)
+        )).get
       }
       model <- modelFromString(modelString)
     } yield ModelInfo(tagId, features, ranges, model, testInfo)

@@ -10,7 +10,7 @@ object Dependencies {
   val guava = "com.google.guava" % "guava" % "17.0-rc2"
   val jSoup = "org.jsoup" % "jsoup" % "1.7.3"
   val libLinear = "de.bwaldvogel" % "liblinear" % "1.94"
-  val pickling = "org.scala-lang" %% "scala-pickling" % "0.8.0"
+  val playJson = "com.typesafe.play" %% "play-json" % "2.2.0"
   val rxScala = "com.netflix.rxjava" % "rxjava-scala" % "0.17.6"
   val slf4j = "org.clapper" %% "grizzled-slf4j" % "1.0.1"
   val specs2 = "org.specs2" %% "specs2" % "2.2.3"
