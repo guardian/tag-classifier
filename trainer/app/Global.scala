@@ -1,7 +1,5 @@
-import com.amazonaws.services.s3.AmazonS3Client
 import com.theguardian.tagclassifier.util.StopWatch
-import com.theguardian.tagclassifier.data.{TestingInfo, ModelInfo, S3Storage}
-import conf.TrainerConfiguration
+import com.theguardian.tagclassifier.data.{TestingInfo, ModelInfo}
 import data.TrainerS3Storage
 import grizzled.slf4j.Logging
 import miner.TrainingSetBuilder
@@ -12,7 +10,7 @@ import trainer.{Tester, Trainer}
 import play.api.Play.current
 
 object Global extends WithFilters() with Logging {
-  val dataSetSize = 1000
+  val dataSetSize = 10000
   val testTag = "tone/comment"
 
   override def onStart(app: Application): Unit = {

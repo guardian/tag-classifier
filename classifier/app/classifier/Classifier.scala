@@ -18,4 +18,6 @@ case class Classifier(private val modelInfo: ModelInfo) {
 
     Linear.predict(modelInfo.model, featureNodes.toArray)
   }
+
+  def successRate = modelInfo.testingInfo.successRate
 }

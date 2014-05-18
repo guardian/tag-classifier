@@ -37,7 +37,7 @@
                     $.ajax({
                         url: "/classify",
                         type: "POST",
-                        data: doc.text(),
+                        data: doc.val(),
                         contentType: "text/plain",
                         success: function (data) {
                             suggestionsBox.html("");
