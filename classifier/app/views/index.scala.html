@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <title>Tag Classifier</title>
+    </head>
+
+    <style>
+        #document {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+
+    <body>
+
+        <h1>Tag Classifier</h1>
+
+        <form id="test_form">
+            <textarea name="document" id="document"></textarea>
+
+            <input type="submit" value="Classify!" />
+        </form>
+
+        <div id="suggestions">
+
+        </div>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+        <script>
+            $(function () {
+                var doc = $("#document");
+                var suggestionsBox = $("#suggestions");
+
+                $("#test_form").submit(function (event) {
+                    event.preventDefault();
+
+                    $.ajax({
+                        url: "/classify",
+                        type: "POST",
+                        data: doc.text(),
+                        contentType: "text/plain",
+                        success: function (data) {
+                            suggestionsBox.html("");
+
+                            for (var i = 0; i < data.suggestions.length; i++) {
+                                var suggestion = data.suggestions[i];
+                                var suggestionText = suggestion.tagId + " (" + suggestion.probability + ")";
+
+                                suggestionsBox.append("<p>" + suggestionText + "</p>");
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

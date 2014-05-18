@@ -19,4 +19,8 @@ object ClassifierController extends Controller {
       Suggestion(tagId, probability)
     }).sortBy(-_.probability).take(MaxSuggestions))))
   }
+
+  def index = Action {
+    Ok(views.html.index())
+  }
 }

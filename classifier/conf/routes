@@ -1,0 +1,6 @@
+
+
+
+GET    /            controllers.ClassifierController.index
+
+POST   /classify    controllers.ClassifierController.classify
