@@ -45,24 +45,15 @@ object TagClassifierBuild extends Build {
   )
 
   val common = Project("common", file("common"))
-    .settings(
-      libraryDependencies ++= commonDependencies
-    )
+    .settings(libraryDependencies ++= commonDependencies)
 
   val trainer = commonPlayProject("trainer", "trainer")
-    .settings(
-      libraryDependencies ++= Seq(
-        rxScala
-      ),
-      libraryDependencies ++= commonDependencies
-    )
+    .settings(libraryDependencies ++= commonDependencies)
     .dependsOn(common)
 
   val classifier = commonPlayProject("classifier", "classifier")
     .settings(
-      libraryDependencies ++= Seq(
-        akkaAgent
-      ),
+      libraryDependencies += akkaAgent,
       libraryDependencies ++= commonDependencies
     ).dependsOn(common)
 

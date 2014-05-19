@@ -9,6 +9,8 @@ import de.bwaldvogel.liblinear.FeatureNode
 import grizzled.slf4j.Logging
 import com.theguardian.tagclassifier.util.StopWatch
 import com.theguardian.tagclassifier.models.FeatureRange
+import play.api.libs.iteratee.Iteratee
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Row(
   isInClass: Boolean,
@@ -102,17 +104,14 @@ object TrainingSetBuilder extends Logging {
   }
 
   def build(tagId: String, dataSetSize: Int) = {
-    val withTag = TrainingSetDownloader.containingTag(tagId, dataSetSize / 2).map(content =>
-      Document.fromContent(true)(content.bodyOrDie)
-    )
-    val withoutTag = TrainingSetDownloader.notContainingTag(tagId, dataSetSize).map(content =>
-      Document.fromContent(false)(content.bodyOrDie)
-    )
+    for {
+      withTag <- TrainingSetDownloader.containingTag(tagId, dataSetSize / 2).map(content =>
+        Document.fromContent(true)(content.bodyOrDie)
+      ).run(Iteratee.getChunks)
 
-    buildDataSet((withTag ++ withoutTag)
-      .take(dataSetSize)
-      .toBlockingObservable
-      .toList
-      .par)
+      withoutTag <- TrainingSetDownloader.notContainingTag(tagId, dataSetSize).map(content =>
+        Document.fromContent(false)(content.bodyOrDie)
+      ).run(Iteratee.getChunks)
+    } yield buildDataSet((withTag ++ withoutTag).par)
   }
 }

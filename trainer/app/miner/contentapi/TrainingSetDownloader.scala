@@ -1,18 +1,24 @@
 package miner.contentapi
 
-import scala.concurrent.duration._
-import rx.lang.scala.Observable
 import grizzled.slf4j.Logging
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.gu.openplatform.contentapi.model.{Content, SearchResponse}
+import play.api.libs.iteratee.{Enumeratee, Enumerator}
+import scala.concurrent.duration._
+import play.api.Play.current
+import play.libs.Akka
 
 object TrainingSetDownloader extends Logging {
+  lazy implicit val actorSystem = Akka.system()
+
   /** 50 is the maximum Content API allows */
   val PageSize = 50
 
-  /** So as not to overload Content API */
-  val DelayBetweenQueries = 200.millis
+  val MaxRetries = 3
+
+  val PauseBetweenQueries = 50.millis
+  val RetryAfter = 200.millis
 
   val query = Api
     .search
@@ -21,25 +27,33 @@ object TrainingSetDownloader extends Logging {
     .pageSize(PageSize)
     .orderBy("newest")
 
-  protected def runQuery(items: Int)(getPage: Int => Future[SearchResponse]): Observable[Content] =
-    (Observable.interval(DelayBetweenQueries).drop(1) flatMap { page =>
-      Observable.from(getPage(page.toInt)) onErrorResumeNext { error =>
-       /** We don't really care if we miss out a page, just continue */
-        logger.error(s"Error downloading page $page", error)
-        Observable.empty
+  protected def runQuery(getPage: Int => Future[SearchResponse]): Enumerator[Content] = {
+    def getPageWithRetries(page: Int, retries: Int = MaxRetries): Future[SearchResponse] =
+      if (retries < 1) getPage(page) else getPage(page) recoverWith {
+        case error =>
+          logger.error(s"Error downloading page $page", error)
+          Future.delayed(RetryAfter).flatMap(_ => getPageWithRetries(page, retries - 1))
       }
-    }).takeWhile(!_.isLastPageOrBeyond).flatMap({ response =>
-      /** It appears that not all items of content have a body for some reason */
-      Observable.from(response.results.filter(_.body.isDefined))
-    }).take(items)
+
+    Enumerator.unfoldM[Option[Int], List[Content]](Option(1)) {
+      case Some(pageNumber) =>
+        getPageWithRetries(pageNumber) map { searchResponse =>
+          val nextPage = if (searchResponse.isLastPage) None else Some(pageNumber + 1)
+
+          Some(nextPage, searchResponse.results)
+        }
+
+      case None => Future.successful(None)
+    }.flatMap(Enumerator.apply) through Enumeratee.filter(_.body.isDefined)
+  }
 
   /** Observable of n documents from content api that have been tagged with the given tag ID */
-  def containingTag(tagId: String, n: Int) = runQuery(n) { page =>
+  def containingTag(tagId: String, n: Int) = runQuery { page =>
     query.tag(tagId).page(page).response
-  }
+  } through Enumeratee.take(n)
 
   /** Observable of n documents from content api that have not been tagged with the given tag ID */
-  def notContainingTag(tagId: String, n: Int) = runQuery(n) { page =>
+  def notContainingTag(tagId: String, n: Int) = runQuery { page =>
     query.tag(s"-$tagId").page(page).response
-  }
+  } through Enumeratee.take(n)
 }
